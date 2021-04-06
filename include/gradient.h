@@ -1,17 +1,17 @@
 #include <Arduino.h>
 
 /* CONSTANTS */
-#define GRAD_WIDTH  6 // Gradient has horizontally 6 different shades
-#define GRAD_HEIGHT 6
+const uint8_t GRAD_WIDTH = 6; // Gradient has horizontally 6 different shades
+const uint8_t GRAD_HEIGHT = 6;
 
 /* CLASSES */
 class RGB{
     public:
-        int R;
-        int G;
-        int B;
+        uint8_t R;
+        uint8_t G;
+        uint8_t B;
 
-        RGB(int red = 0, int green = 0, int blue = 0){
+        RGB(uint8_t red = 0, uint8_t green = 0, uint8_t blue = 0){
             R = red;
             G = green;
             B = blue;
@@ -21,7 +21,6 @@ class RGB{
 class Gradient{
     public:
         RGB block[GRAD_HEIGHT][GRAD_WIDTH];
-        char* name;
 
         Gradient(RGB l_side, RGB r_side){
             float red_step = 1.0 * (l_side.R - r_side.R) / GRAD_WIDTH;
@@ -30,7 +29,7 @@ class Gradient{
 
             RGB color;
 
-            for(int col = 0; col < GRAD_WIDTH; col++){
+            for(int8_t col = 0; col < GRAD_WIDTH; col++){
                 /* Calculate gradient "column" RGB value */
                 if(col == 0){ // First column
                     color.R = l_side.R;
@@ -47,17 +46,17 @@ class Gradient{
                 }
 
                 /* Add color to gradient column */
-                for(int row = 0; row < GRAD_HEIGHT; row++){
+                for(int8_t row = 0; row < GRAD_HEIGHT; row++){
                     block[row][col] = color; 
                 }
             }
         }
 
         void print(){
-            char string[100];
+            char string[20];
 
-            for(int row = 0; row < GRAD_HEIGHT; row++){
-                for(int col = 0; col < GRAD_WIDTH; col++){
+            for(int8_t row = 0; row < GRAD_HEIGHT; row++){
+                for(int8_t col = 0; col < GRAD_WIDTH; col++){
                     sprintf(string, "(%3d, %3d, %3d) ", block[row][col].R, block[row][col].G, block[row][col].B);
                     Serial.print(string);
                 }
