@@ -23,7 +23,7 @@ const Gradient BLUE_GRAD(INDIGO, BLUE);
 
 /* Sound */
 const uint16_t MIN_VOL = 270; // Measured volume value can be from 0 to 1023. Consider everything below MIN_VOL as noise.
-const uint8_t LOCAL_MEASURING_INTERVAL = 100; // ms
+const uint8_t LOCAL_MEASURING_INTERVAL = 50; // ms
 const uint16_t PEAK_SOUND_RESET_INTERVAL = 5000; // ms
 
 /* PROTOTYPES */
@@ -38,7 +38,6 @@ ColorWall visible(BLUE_GRAD);
 ColorWall buffer(YELLOW_GRAD);
 
 /* Sound level */
-unsigned long last_local_measuring_time;
 unsigned long last_peak_reset_time;
 uint16_t peak_sound;
 
@@ -75,8 +74,9 @@ void loop() {
 int getSoundVolume(){
     uint16_t sample, local_max_sound = 0;
 
-    /* Get sound volume fluctuations */
-    while(millis() - last_local_measuring_time < LOCAL_MEASURING_INTERVAL){
+    /* Get max volume during interval */
+    unsigned long start_time = millis();
+    while(millis() - start_time < LOCAL_MEASURING_INTERVAL){
         sample = analogRead(MIC_PIN);
         sample = sample < MIN_VOL ? MIN_VOL : sample; // Exclude noise
 
@@ -88,13 +88,14 @@ int getSoundVolume(){
             peak_sound = sample;
         }
     }
-    last_local_measuring_time = millis();
 
-    /* Make sure that peak sound is relevant to current music/situation  */
+    /* Make sure that peak sound is relevant to current music/situation */
+    /* Therefore, update peak volume at least after some interval  */
     if(millis() - last_peak_reset_time >= PEAK_SOUND_RESET_INTERVAL){
         peak_sound = local_max_sound;
         last_peak_reset_time = millis();
     }
-
+    
+    //Serial.println(local_max_sound);
     return local_max_sound;
 }
