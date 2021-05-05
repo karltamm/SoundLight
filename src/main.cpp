@@ -22,6 +22,7 @@ Microphone mic(MIC_PIN);
 /* Animation */
 Rabbithole rabbithole(&screen, &mic);
 Triangles triangles(&screen, &mic);
+Plasma plasma(&screen);
 
 /* Sound level */
 unsigned long last_peak_reset_time;
@@ -37,12 +38,12 @@ void setup() {
     FastLED.setMaxPowerInVoltsAndMilliamps(5, 400);
     FastLED.clear(true);
 
-    /* Rabbithole animation */
+    /* Animations */
     rabbithole.init();
 }
 
 void loop() {
     //rabbithole.run();
-
-    triangles.animate();
+    plasma.run();
+    //triangles.run();
 }

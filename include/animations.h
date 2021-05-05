@@ -6,6 +6,17 @@
 HSVHue HUES[] = {HUE_PURPLE, HUE_YELLOW, HUE_BLUE, HUE_RED, HUE_GREEN, HUE_PINK};
 uint8_t NUM_HUES = 6;
 
+/* Gradients */
+CRGB PINK_PLASMA = CHSV( HUE_PINK, 255, 255);
+CRGB BLUE_PLASMA  = CHSV( HUE_BLUE, 255, 255);
+
+CRGBPalette16 TRIPPY_PLASMA = CRGBPalette16( 
+    PINK_PLASMA,  PINK_PLASMA,  PINK_PLASMA,  PINK_PLASMA,
+    BLUE_PLASMA, BLUE_PLASMA, BLUE_PLASMA,  BLUE_PLASMA,
+    PINK_PLASMA,  PINK_PLASMA,  PINK_PLASMA,  PINK_PLASMA,
+    BLUE_PLASMA, BLUE_PLASMA, BLUE_PLASMA,  BLUE_PLASMA
+);
+
 /* Microphone */
 const uint16_t MIN_VOL = 270; // Measured volume value can be from 0 to 1023. Consider everything below MIN_VOL as noise.
 const uint8_t LOCAL_MEASURING_INTERVAL = 50; // ms
@@ -13,6 +24,10 @@ const uint16_t PEAK_SOUND_RESET_INTERVAL = 5000; // ms
 
 /* Screen */
 const uint8_t DEFAULT_BRIGHTNESS = 50;
+
+/* Plasma animation */
+const uint8_t SIMPLEX_MIN = 50; // Noise value is usually above 50
+const uint8_t SIMPLEX_MAX = 190;
 
 /* CLASSES */
 class Screen{
@@ -76,6 +91,10 @@ class Screen{
         void setLed(uint8_t col, uint8_t row, CHSV color){
             leds[ledIndex(col, row)] = color;
         }
+
+        void setLed(uint8_t col, uint8_t row, CRGB color){
+            leds[ledIndex(col, row)] = color;
+        }
 };
 
 class Microphone{
@@ -135,7 +154,7 @@ class Rabbithole{ // Animation
         Screen* s; // "s" is short for screen
         Microphone* mic;
 
-        uint8_t frame_ms = 30;
+        uint8_t frame_ms = 50;
 
         Rabbithole(Screen* screen, Microphone* microphone){
             s = screen;
@@ -227,7 +246,7 @@ class Triangles{
             Triangles::max_height = s->NUM_COLS / 2; // Max height = half of screen diagonal
         }
 
-        void animate(){
+        void run(){
             FastLED.clear(); // Clear previous animation
 
             /* Calculate paramenets. Triangles are right angled with equal sides */
@@ -265,6 +284,43 @@ class Triangles{
                 step++;
             }
 
+            FastLED.show();
+            delay(frame_ms);
+        }
+};
+
+class Plasma{
+    public:
+        uint8_t scale = 25; // Affects how big a plasma blob will be
+        uint16_t depth = 0; // For the noise algorithm (z coordinate)
+        uint16_t depth_step = 10; // How much "deeper" animation goes every cycle
+        uint8_t brightness = 5;
+        uint8_t frame_ms = 10;
+
+        Screen* s;
+
+        Plasma(Screen* screen){
+            s = screen;
+        }
+
+        void run(){
+            /* Give values for LEDs */
+            for(uint16_t x = 0; x < s->NUM_COLS; x++){
+                for(uint16_t y = 0; y < s->NUM_ROWS; y++){
+                    /* Generate hue index for a LED based on Simplex noise algorith */
+                    uint8_t noise = inoise8(x * scale, y * scale, depth);
+                    uint8_t hue_index = map(noise, SIMPLEX_MIN, SIMPLEX_MAX, 0, 255);
+
+                    s->setLed(x, y, ColorFromPalette(TRIPPY_PLASMA, hue_index, brightness));
+                }
+            }
+
+            /* Animations moves trough time */
+            depth += depth_step;
+            if(depth > 6500) // Around 2^16
+                depth = 0; // To avoid overflow
+
+            /* Update screen */
             FastLED.show();
             delay(frame_ms);
         }
