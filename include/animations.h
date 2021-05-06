@@ -154,7 +154,7 @@ class Rabbithole{ // Animation
         Screen* s; // "s" is short for screen
         Microphone* mic;
 
-        uint8_t frame_ms = 50;
+        uint8_t frame_ms = 66;
 
         Rabbithole(Screen* screen, Microphone* microphone){
             s = screen;
@@ -293,9 +293,9 @@ class Plasma{
     public:
         uint8_t scale = 25; // Affects how big a plasma blob will be
         uint16_t depth = 0; // For the noise algorithm (z coordinate)
-        uint16_t depth_step = 10; // How much "deeper" animation goes every cycle
+        int8_t depth_step = 10; // How much "deeper" animation goes every cycle
         uint8_t brightness = 5;
-        uint8_t frame_ms = 10;
+        uint8_t frame_ms = 50;
 
         Screen* s;
 
@@ -305,11 +305,14 @@ class Plasma{
 
         void run(){
             /* Give values for LEDs */
+            uint8_t noise;
+            uint8_t hue_index;
+
             for(uint16_t x = 0; x < s->NUM_COLS; x++){
                 for(uint16_t y = 0; y < s->NUM_ROWS; y++){
                     /* Generate hue index for a LED based on Simplex noise algorith */
-                    uint8_t noise = inoise8(x * scale, y * scale, depth);
-                    uint8_t hue_index = map(noise, SIMPLEX_MIN, SIMPLEX_MAX, 0, 255);
+                    noise = inoise8(x * scale, y * scale, depth);
+                    hue_index = map(noise, SIMPLEX_MIN, SIMPLEX_MAX, 0, 255);
 
                     s->setLed(x, y, ColorFromPalette(TRIPPY_PLASMA, hue_index, brightness));
                 }
@@ -317,8 +320,11 @@ class Plasma{
 
             /* Animations moves trough time */
             depth += depth_step;
-            if(depth > 6500) // Around 2^16
-                depth = 0; // To avoid overflow
+
+            if(depth > 65000) // Around 2^16
+                depth_step = -10; // Backwards
+            else if(depth < 50)
+                depth_step = 10; // Forward
 
             /* Update screen */
             FastLED.show();
