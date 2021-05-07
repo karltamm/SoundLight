@@ -9,9 +9,6 @@ const uint8_t LED_PIN = 3;
 const uint8_t NUM_ROWS = 16;
 const uint8_t NUM_COLS = 16;
 
-const uint8_t MIN_BRIGHTNESS = 15;
-const uint8_t MAX_BRIGHTNESS = 255;
-
 /* GLOBAL VARIABLES */
 /* LED Display */
 Screen screen(NUM_COLS, NUM_ROWS);
@@ -23,10 +20,6 @@ Microphone mic(MIC_PIN);
 Rabbithole rabbithole(&screen, &mic);
 Triangles triangles(&screen, &mic);
 Plasma plasma(&screen);
-
-/* Sound level */
-unsigned long last_peak_reset_time;
-uint16_t peak_sound;
 
 /* MAIN */
 void setup() {
@@ -44,6 +37,13 @@ void setup() {
 
 void loop() {
     //rabbithole.run();
-    plasma.run();
+    //plasma.run();
     //triangles.run();
+
+    /* Mic test */
+    if(mic.beat()){
+        screen.paintAllSameColor(HUE_RED);
+    }else{
+        screen.paintAllSameColor(HUE_BLUE);
+    }
 }
