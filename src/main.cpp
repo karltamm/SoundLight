@@ -41,8 +41,8 @@ void loop() {
     //triangles.run();
 
     /* Mic test */
-    if(mic.beat()){
-        screen.paintAllSameColor(HUE_RED);
+    if(mic.volumeBumped()){
+        screen.paintAllSameColor(HUE_ORANGE);
     }else{
         screen.paintAllSameColor(HUE_BLUE);
     }

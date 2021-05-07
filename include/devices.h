@@ -3,7 +3,7 @@
 
 /* CONSTANTS */
 /* Microphone */
-const uint8_t LOCAL_MEASURING_INTERVAL = 20; // ms
+const uint8_t LOCAL_MEASURING_INTERVAL = 30; // ms
 const uint16_t PEAK_SOUND_RESET_INTERVAL = 5000; // ms
 
 const uint16_t MIC_NOISE_LEVEL = 270; // Measured volume value can be from 0 to 1023. Consider everything below MIN_VOL as noise.
@@ -90,21 +90,19 @@ class Microphone{
         uint16_t abs_peak = 0;
 
         /* beat() variables */
-        uint16_t average_peak = 0;
+        uint16_t average_volume = 0;
         uint16_t last_peak = 0;
-        uint8_t peak_delta = 0;
-
         uint16_t average_bump = 0;
-        uint8_t is_bump = 0; // Boolean: volume bump occured
+
     public:
         Microphone(uint8_t pin){
             MIC_PIN = pin;
             pinMode(MIC_PIN, INPUT);
         }
 
-        uint8_t beat(){
+        uint16_t getCurrentPeak(){
             uint16_t sample;
-            uint16_t local_peak = 0;
+            uint16_t current_peak = 0;
 
             /* Measure volume */
             unsigned long start_time = millis();
@@ -114,24 +112,37 @@ class Microphone{
 
                 /* Filter */
                 if(sample <= VOL_MAX_VALUE){ // Only accept normal values
-                    if(sample > local_peak){
-                        local_peak = sample;
+                    if(sample > current_peak){
+                        current_peak = sample;
                     }
                 }
             }
 
-            /* Average peak volume */
-            average_peak = (average_peak + local_peak) / 2;
+            /* Update average peak volume */
+            average_volume = (average_volume + current_peak) / 2;
+
+            return current_peak;
+        }
+
+        uint16_t getPeakChange(){
+            uint16_t current_peak = getCurrentPeak();
+            uint16_t peak_delta = 0; // How much current peak differs from last one
+
+            if(current_peak > average_volume){ // Low volume doesn't count
+                peak_delta = abs(current_peak - last_peak);
+            }
+
+            last_peak = current_peak;
+
+            return peak_delta;
+        }
+
+        uint8_t volumeBumped(){
+            uint8_t is_bump = 0; // 1 = bump; 0 = no bump
 
             /* Find if there was any volume bump */
-            if(local_peak > average_peak){
-                peak_delta = local_peak - last_peak; // How much local peak differs from last one
-                last_peak = local_peak;
-
-                if(peak_delta > MIN_VOL_BUMP){ // Bump happened
-                    average_bump = (average_bump + peak_delta) / 2;
-                    is_bump = !(peak_delta > average_bump); // 1 = bump; 0 = no bump
-                }
+            if(getPeakChange() > MIN_VOL_BUMP){
+                is_bump = 1;
             }
 
             return is_bump;
