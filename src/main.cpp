@@ -17,9 +17,8 @@ Screen screen(NUM_COLS, NUM_ROWS);
 Microphone mic(MIC_PIN);
 
 /* Animation */
-Rabbithole rabbithole(&screen, &mic);
-Triangles triangles(&screen, &mic);
-Plasma plasma(&screen);
+//Rabbithole rabbithole(&screen, &mic);
+Plasma plasma(&screen, &mic);
 
 /* MAIN */
 void setup() {
@@ -32,18 +31,9 @@ void setup() {
     FastLED.clear(true);
 
     /* Animations */
-    rabbithole.init();
+    //rabbithole.init();
 }
 
 void loop() {
-    //rabbithole.run();
-    //plasma.run();
-    //triangles.run();
-
-    /* Mic test */
-    if(mic.volumeBumped()){
-        screen.paintAllSameColor(HUE_ORANGE);
-    }else{
-        screen.paintAllSameColor(HUE_BLUE);
-    }
+    plasma.soundReactivePlasma();
 }

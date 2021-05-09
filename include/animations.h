@@ -6,14 +6,22 @@ HSVHue HUES[] = {HUE_PURPLE, HUE_YELLOW, HUE_BLUE, HUE_RED, HUE_GREEN, HUE_PINK}
 uint8_t NUM_HUES = 6;
 
 /* Gradients */
-CRGB PINK_PLASMA = CHSV( HUE_PINK, 255, 255);
-CRGB BLUE_PLASMA  = CHSV( HUE_BLUE, 255, 255);
+CRGB PINK = CHSV(HUE_PINK, 255, 255);
+CRGB BLUE  = CHSV(HUE_BLUE, 255, 255);
+CRGB YELLOW = CHSV(HUE_YELLOW, 255, 255);
 
-CRGBPalette16 TRIPPY_PLASMA = CRGBPalette16( 
-    PINK_PLASMA,  PINK_PLASMA,  PINK_PLASMA,  PINK_PLASMA,
-    BLUE_PLASMA, BLUE_PLASMA, BLUE_PLASMA,  BLUE_PLASMA,
-    PINK_PLASMA,  PINK_PLASMA,  PINK_PLASMA,  PINK_PLASMA,
-    BLUE_PLASMA, BLUE_PLASMA, BLUE_PLASMA,  BLUE_PLASMA
+CRGBPalette16 PINK_BLUE = CRGBPalette16( 
+    PINK,  PINK,  PINK,  PINK,
+    BLUE, BLUE, BLUE,  BLUE,
+    PINK,  PINK,  PINK,  PINK,
+    BLUE, BLUE, BLUE,  BLUE
+);
+
+CRGBPalette16 PINK_YELLOW = CRGBPalette16( 
+    PINK,  PINK,  PINK,  PINK,
+    YELLOW, YELLOW, YELLOW,  YELLOW,
+    PINK,  PINK,  PINK,  PINK,
+    YELLOW, YELLOW, YELLOW,  YELLOW
 );
 
 /* Plasma animation */
@@ -106,81 +114,23 @@ class Rabbithole{ // Animation
         }
 };
 
-class Triangles{
-    public:
-        Microphone* mic;
-        Screen* s; // "s" is short for screen
-        uint8_t screen_width;
-        uint8_t height;
-        uint8_t max_height;
-        uint8_t side;
-
-        uint8_t frame_ms = 60;
-
-        Triangles(Screen* screen, Microphone* mic){
-            s = screen;
-            Triangles::mic = mic;
-            Triangles::max_height = s->NUM_COLS / 2; // Max height = half of screen diagonal
-        }
-
-        void run(){
-            FastLED.clear(); // Clear previous animation
-
-            /* Calculate paramenets. Triangles are right angled with equal sides */
-            height = map8(mic->getVol(), 0, max_height);
-            height = height < 2 ? 2 : height; // At least minimum value
-            side = 2 * height / sqrt(2); // Found using cosine
-
-            /* Draw triangles. Triangles share same hypotenuse and form a square (in the middle of screen) */
-            /* Find starting point (x and y are same) for 1st triangle */
-            uint8_t triangle_1_start = ((s->NUM_COLS - 1) - side) / 2; // 2 triangles share same hypotenuse and form a square; place this "square" in the middle of screen.
-            uint8_t triangle_1_end = triangle_1_start + side;
-
-            /* Draw 1st triangle */
-            uint8_t step = 0; // Every step moves y starting point lower; this draws a line that is hypotenuse
-            for(uint8_t x = triangle_1_start; x <= triangle_1_end; x++){
-                for(uint8_t y = triangle_1_start + step; y <= triangle_1_end; y++){
-                    s->setLed(x, y, HUE_BLUE);
-                }
-                step++;
-            }
-
-            /* Draw 2nd triangle */
-            step = 0;
-            uint8_t triangle_2_start_x = triangle_1_end; // Drawing goes from right to left (opposite to 1st triangle)
-            uint8_t triangle_2_end_x = triangle_1_start;
-
-            uint8_t triangle_2_start_y = triangle_1_start;
-            uint8_t triangle_2_end_y = triangle_1_end;
-
-            for(uint8_t x = triangle_2_start_x; x >= triangle_2_end_x; x--){
-                for(uint8_t y = triangle_2_start_y; y <= triangle_2_end_y - step; y++){
-                    s->setLed(x, y, HUE_RED);
-                }
-
-                step++;
-            }
-
-            FastLED.show();
-            delay(frame_ms);
-        }
-};
-
 class Plasma{
     public:
         uint8_t scale = 25; // Affects how big a plasma blob will be
         uint16_t depth = 0; // For the noise algorithm (z coordinate)
         int8_t depth_step = 10; // How much "deeper" animation goes every cycle
-        uint8_t brightness = 5;
-        uint8_t frame_ms = 50;
+        uint8_t brightness;
 
         Screen* s;
+        Microphone* mic;
 
-        Plasma(Screen* screen){
+        Plasma(Screen* screen, Microphone* mic){
             s = screen;
+            brightness = screen->brightness;
+            Plasma::mic = mic;
         }
 
-        void run(){
+        void run(CRGBPalette16 palette){
             /* Give values for LEDs */
             uint8_t noise;
             uint8_t hue_index;
@@ -191,7 +141,7 @@ class Plasma{
                     noise = inoise8(x * scale, y * scale, depth);
                     hue_index = map(noise, SIMPLEX_MIN, SIMPLEX_MAX, 0, 255);
 
-                    s->setLed(x, y, ColorFromPalette(TRIPPY_PLASMA, hue_index, brightness));
+                    s->setLed(x, y, ColorFromPalette(palette, hue_index, brightness));
                 }
             }
 
@@ -205,6 +155,13 @@ class Plasma{
 
             /* Update screen */
             FastLED.show();
-            delay(frame_ms);
+        }
+
+        void soundReactivePlasma(){
+            if(mic->isVolumeBump()){
+                run(PINK_YELLOW);
+            }else{
+                run(PINK_BLUE);
+            }
         }
 };

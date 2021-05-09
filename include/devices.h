@@ -4,14 +4,12 @@
 /* CONSTANTS */
 /* Microphone */
 const uint8_t LOCAL_MEASURING_INTERVAL = 30; // ms
-const uint16_t PEAK_SOUND_RESET_INTERVAL = 5000; // ms
-
 const uint16_t MIC_NOISE_LEVEL = 270; // Measured volume value can be from 0 to 1023. Consider everything below MIN_VOL as noise.
 const uint8_t MIN_VOL_BUMP = 30;
 const uint16_t VOL_MAX_VALUE = 1023;
 
 /* Screen */
-const uint8_t DEFAULT_BRIGHTNESS = 50;
+const uint8_t DEFAULT_BRIGHTNESS = 255;
 
 /* CLASSES */
 class Screen{
@@ -85,11 +83,6 @@ class Microphone{
     private:
         uint8_t MIC_PIN; // Input pin
 
-        /* getVol() variables */
-        unsigned long abs_peak_reset_time;
-        uint16_t abs_peak = 0;
-
-        /* beat() variables */
         uint16_t average_volume = 0;
         uint16_t last_peak = 0;
         uint16_t average_bump = 0;
@@ -137,7 +130,7 @@ class Microphone{
             return peak_delta;
         }
 
-        uint8_t volumeBumped(){
+        uint8_t isVolumeBump(){
             uint8_t is_bump = 0; // 1 = bump; 0 = no bump
 
             /* Find if there was any volume bump */
@@ -146,39 +139,5 @@ class Microphone{
             }
 
             return is_bump;
-        }
-
-        uint8_t getVol(){ // Get volume
-            uint16_t sample;
-            uint16_t local_max_sound = 0;
-
-            /* Get max volume during interval */
-            unsigned long start_time = millis();
-            while(millis() - start_time < LOCAL_MEASURING_INTERVAL){
-                sample = analogRead(MIC_PIN);
-                sample = sample < MIC_NOISE_LEVEL ? MIC_NOISE_LEVEL : sample; // Exclude noise
-
-                if(sample > local_max_sound){
-                    local_max_sound = sample;
-                }
-
-                if(sample > abs_peak){
-                    abs_peak = sample;
-                }
-            }
-
-            /* Make sure that peak sound is relevant to current music/situation */
-            /* Therefore, update peak volume at least after some interval  */
-            if(millis() - abs_peak_reset_time >= PEAK_SOUND_RESET_INTERVAL){
-                abs_peak = local_max_sound;
-                abs_peak_reset_time = millis();
-            }
-
-            /* Output */
-            if(local_max_sound == MIC_NOISE_LEVEL){
-                return 0;
-            }else{
-                return map(local_max_sound, MIC_NOISE_LEVEL, abs_peak, 0, 255);
-            }
         }
 };
