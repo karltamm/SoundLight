@@ -7,9 +7,10 @@ const uint8_t LOCAL_MEASURING_INTERVAL = 30; // ms
 const uint16_t MIC_NOISE_LEVEL = 270; // Measured volume value can be from 0 to 1023. Consider everything below MIN_VOL as noise.
 const uint8_t MIN_VOL_BUMP = 30;
 const uint16_t VOL_MAX_VALUE = 1023;
+const uint16_t AVERAGE_RESET_TIMER = 60000; // 1 minute in milliseconds
 
 /* Screen */
-const uint8_t DEFAULT_BRIGHTNESS = 255;
+const uint8_t DEFAULT_BRIGHTNESS = 200;
 
 /* CLASSES */
 class Screen{
@@ -86,6 +87,7 @@ class Microphone{
         uint16_t average_volume = 0;
         uint16_t last_peak = 0;
         uint16_t average_bump = 0;
+        long unsigned last_average_reset = 0;
 
     public:
         Microphone(uint8_t pin){
@@ -113,6 +115,12 @@ class Microphone{
 
             /* Update average peak volume */
             average_volume = (average_volume + current_peak) / 2;
+
+            /* Reset the average volume from time to time to reflect the current situation */
+            if(millis() - last_average_reset >= AVERAGE_RESET_TIMER){
+                last_average_reset = millis();
+                average_volume = 0;
+            }
 
             return current_peak;
         }

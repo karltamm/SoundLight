@@ -10,14 +10,11 @@ const uint8_t NUM_ROWS = 16;
 const uint8_t NUM_COLS = 16;
 
 /* GLOBAL VARIABLES */
-/* LED Display */
+/* External devices */
 Screen screen(NUM_COLS, NUM_ROWS);
-
-/* Microphone */
 Microphone mic(MIC_PIN);
 
 /* Animation */
-//Rabbithole rabbithole(&screen, &mic);
 Plasma plasma(&screen, &mic);
 
 /* MAIN */
@@ -27,11 +24,8 @@ void setup() {
 
     /* Init FastLED */
     FastLED.addLeds<WS2812B, LED_PIN, GRB>(screen.leds, screen.NUM_LEDS);
-    FastLED.setMaxPowerInVoltsAndMilliamps(5, 400);
+    FastLED.setMaxPowerInVoltsAndMilliamps(5, 2000);
     FastLED.clear(true);
-
-    /* Animations */
-    //rabbithole.init();
 }
 
 void loop() {
