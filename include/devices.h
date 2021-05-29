@@ -10,7 +10,7 @@ const uint16_t VOL_MAX_VALUE = 1023;
 const uint16_t AVERAGE_RESET_TIMER = 60000; // 1 minute in milliseconds
 
 /* Screen */
-const uint8_t DEFAULT_BRIGHTNESS = 200;
+const uint8_t DEFAULT_BRIGHTNESS = 150;
 
 /* CLASSES */
 class Screen{
