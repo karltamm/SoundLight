@@ -24,7 +24,7 @@ void setup() {
 
     /* Init FastLED */
     FastLED.addLeds<WS2812B, LED_PIN, GRB>(screen.leds, screen.NUM_LEDS);
-    FastLED.setMaxPowerInVoltsAndMilliamps(5, 2000);
+    FastLED.setMaxPowerInVoltsAndMilliamps(5, 400);
     FastLED.clear(true);
 }
 
