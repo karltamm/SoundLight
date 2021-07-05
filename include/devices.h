@@ -139,13 +139,11 @@ class Microphone{
         }
 
         uint8_t isVolumeBump(){
-            uint8_t is_bump = 0; // 1 = bump; 0 = no bump
-
             /* Find if there was any volume bump */
             if(getPeakChange() > MIN_VOL_BUMP){
-                is_bump = 1;
+                return 1;
             }
 
-            return is_bump;
+            return 0; // No volume bump
         }
 };

@@ -2,8 +2,8 @@
 
 /* CONSTANTS */
 /* Pins */
-const uint8_t MIC_PIN = A1;
-const uint8_t LED_PIN = 3;
+const uint8_t MIC_PIN = A2;
+const uint8_t LED_PIN = 7;
 
 /* LED display */
 const uint8_t NUM_ROWS = 16;
