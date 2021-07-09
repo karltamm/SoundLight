@@ -1,5 +1,5 @@
 # SoundLight
-SoundLight is a sound reactive display made by Karl-Heinrich Tamm.
+SoundLight is a sound reactive display.
 
 * [Demo video](https://www.youtube.com/watch?v=6hr5MKKdF0U)
 * [Photos](https://imgur.com/a/T8ksyk4)
