@@ -1,5 +1,5 @@
 # SoundLight
-SoundLight is a sound reactive display.
+SoundLight is a sound reactive artwork. It displays light patterns on a LED display based on surrounding sounds.
 
 * [Demo video](https://www.youtube.com/watch?v=6hr5MKKdF0U)
 * [Photos](https://imgur.com/a/T8ksyk4)
