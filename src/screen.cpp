@@ -8,10 +8,6 @@
 #define SCREEN_RGB_ORDER GRB
 #define SCREEN_TYPE      WS2812B
 
-#define SCREEN_ROW_COUNT    16
-#define SCREEN_COLUMN_COUNT 16
-#define SCREEN_PIXEL_COUNT  256
-
 #define SCREEN_MAX_VOLTS     5
 #define SCREEN_MAX_MILLIAMPS 400
 
@@ -34,6 +30,10 @@ void init_screen(uint8_t brightness) {
 }
 
 // TODO: stop screen (deallocate)
+
+uint8_t get_screen_brightness() {
+  return g_brightness;
+}
 
 void set_pixel(uint8_t pixel_index, CRGB color) {
   if (pixel_index >= SCREEN_PIXEL_COUNT || g_pixels == NULL) {
