@@ -1,0 +1,7 @@
+{
+  BasedOnStyle: Chromium,
+  ColumnLimit: 0,
+  PointerAlignment: Left,
+  AlignConsecutiveMacros: true,
+  AlwaysBreakTemplateDeclarations: No,
+}
