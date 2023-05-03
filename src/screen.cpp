@@ -1,6 +1,5 @@
 #include <screen.h>
 
-#include <Arduino.h>
 #include <stdlib.h>
 
 /* PRIVATE CONSTANTS */
