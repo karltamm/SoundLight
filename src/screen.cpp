@@ -13,30 +13,23 @@
 
 /* PRIVATE GLOBAL VARIABLES */
 static uint8_t g_brightness;
-static CRGB* g_pixels = NULL;
+static CRGB g_pixels[SCREEN_PIXEL_COUNT];
 
 /* FUNCTIONS */
 void init_screen(uint8_t brightness) {
   g_brightness = brightness;
-
-  g_pixels = (CRGB*)malloc(sizeof(CRGB) * SCREEN_PIXEL_COUNT);
-  if (g_pixels == NULL) {
-    return;
-  }
 
   FastLED.addLeds<SCREEN_TYPE, SCREEN_DATA_PIN, SCREEN_RGB_ORDER>(g_pixels, SCREEN_PIXEL_COUNT);
   FastLED.setMaxPowerInVoltsAndMilliamps(SCREEN_MAX_VOLTS, SCREEN_MAX_MILLIAMPS);
   FastLED.clear(true);
 }
 
-// TODO: stop screen (deallocate)
-
 uint8_t get_screen_brightness() {
   return g_brightness;
 }
 
 void set_pixel(uint8_t pixel_index, CRGB color) {
-  if (pixel_index >= SCREEN_PIXEL_COUNT || g_pixels == NULL) {
+  if (pixel_index >= SCREEN_PIXEL_COUNT) {
     return;
   }
 
@@ -45,7 +38,7 @@ void set_pixel(uint8_t pixel_index, CRGB color) {
 
 uint8_t get_pixel_index(uint8_t row_index, uint8_t column_index) {
   if (row_index >= SCREEN_ROW_COUNT || column_index >= SCREEN_COLUMN_COUNT) {
-    return;
+    return 0;
   }
 
   /*
